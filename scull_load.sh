@@ -9,11 +9,11 @@ mode="664"
 
 rm -rf "/dev/${DEVICE}0"
 
-major_num = $(awk "\\$2==\"$module\" {print \\$1}" /proc/devices)
+major=$(awk "\\$2==\"$module\" {print \\$1}" /proc/devices)
 
-mknod /dev/${device} c $major 0
+mknod /dev/${DEVICE} c $major 0
 
 group="root"
 
-chgrp $group /dev/${device}0
-chmod $mode /dev/${device}0
+chgrp $group /dev/${DEVICE}0
+chmod $mode /dev/${DEVICE}0

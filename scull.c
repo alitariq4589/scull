@@ -252,7 +252,7 @@ void scull_cleanup(void)
     
     scull_trim(&scull_device); 
     
-    printk(KERN_INFO "SCULL: Device unloaded.\n");
+    printk(KERN_INFO "scull: Device unloaded.\n");
 }
 
 static void __exit scull_cleanup_module(void)
