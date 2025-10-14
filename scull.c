@@ -37,7 +37,7 @@ static int __init scull_init(void){
 
         int result = setup_scull(&scull_device);
         if (result < 0){
-                scull_cleanup_module();
+                scull_cleanup();
                 return result;
         }
         return 0;
@@ -238,7 +238,7 @@ int create_qset(struct scull_qset **qset){
         return 0;
 }
 
-static void __exit scull_cleanup_module(void)
+void scull_cleanup(void)
 {
     if (scull_device.cdev.ops) {
         cdev_del(&scull_device.cdev);
@@ -253,6 +253,11 @@ static void __exit scull_cleanup_module(void)
     scull_trim(&scull_device); 
     
     printk(KERN_INFO "SCULL: Device unloaded.\n");
+}
+
+static void __exit scull_cleanup_module(void)
+{
+        scull_cleanup();
 }
 
 module_init(scull_init);

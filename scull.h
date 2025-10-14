@@ -27,3 +27,4 @@ struct scull_qset *scull_follow(struct scull_dev *dev, int qset_num);
 int create_qset(struct scull_qset **qset);
 static void scull_cleanup_module(void);
 int scull_release(struct inode *inode, struct file *filp);
+void scull_cleanup(void);
