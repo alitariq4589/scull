@@ -1,4 +1,4 @@
-ifneq($(KERNELRELEASE),)
+ifneq ($(KERNELRELEASE),)
 obj-m := scull.o
 else
 KERNELDIR ?= /lib/modules/$(shell uname -r)/build
