@@ -1,12 +1,3 @@
-#include<linux/module.h>
-#include<linux/init.h>
-#include<linux/fs.h>
-#include<linux/cdev.h>
-#include<linux/kernel.h>
-#include<linux/slab.h>
-#include<linux/string.h>
-#include<linux/uaccess.h>
-
 #include "scull.h"
 
 #define SCULL_QUANTUM 4000
@@ -14,15 +5,7 @@
 
 
 
-struct scull_dev {
-        struct scull_qset *data;
-        unsigned long size;
-        unsigned long quantum;
-        unsigned long qset;
-        struct cdev cdev;
-        unsigned int access_key;
-        struct semaphore sem;
-};
+
 
 struct scull_qset {
         struct scull_qset *next;
@@ -43,9 +26,9 @@ static struct scull_dev scull_device;
 
 dev_t scull_devnum;
 
-static int __init scull_init(){
+static int __init scull_init(void){
 
-        memset(&scull_device,)
+
 
         scull_device.size = 0;
         scull_device.quantum = SCULL_QUANTUM;
@@ -60,26 +43,20 @@ static int __init scull_init(){
         return 0;
 }
 
-void cdev_init(struct cdev *cdev, struct file_operations *fops)
-{
-        cdev->owner = THIS_MODULE;
-        cdev->ops = fops;
-}
-
 static int setup_scull(struct scull_dev *dev)
 {
         dev_t dev_num;
         
-        if (alloc_chardev_region(&dev_num, 0, 1, "scull")){
+        if (alloc_chrdev_region(&dev_num, 0, 1, "scull")){
                 printk(KERN_ALERT "scull: Device Number allocation failed!\n");
                 return -EFAULT;
         }
-        
+        dev->cdev.owner = THIS_MODULE;
         cdev_init(&dev->cdev, &fops);
         int result = cdev_add(&dev->cdev, dev_num, 1); //Already defined in the kernel
         
         if (result){
-                printk(KERN_ALERT "scull: Failed to add chardevice in the kernel")
+                printk(KERN_ALERT "scull: Failed to add chardevice in the kernel");
         }
         scull_devnum = dev_num;
         
@@ -88,22 +65,22 @@ static int setup_scull(struct scull_dev *dev)
 
 int scull_trim(struct scull_dev *dev)
 {
-        struct scull_qset *current, *next;
+        struct scull_qset *current_qset, *next;
         
         unsigned long i, qset = dev->qset;
 
-        current = dev->data;
+        current_qset = dev->data;
 
-        for (current = dev->data; current; current = next){
-                next = current->next;
-                if (current->data){
+        for (current_qset = dev->data; current_qset; current_qset = next){
+                next = current_qset->next;
+                if (current_qset->data){
                         for (i = 0; i < qset; i++){
-                                kfree(current->data[i]);
+                                kfree(current_qset->data[i]);
                         }
-                        kfree(current->data);
-                        current->data = NULL
+                        kfree(current_qset->data);
+                        current_qset->data = NULL;
                 }
-                kfree(current);
+                kfree(current_qset);
         }
         dev->size = 0;
         dev->quantum = SCULL_QUANTUM;
@@ -129,10 +106,14 @@ int scull_open(struct inode *inode, struct file *filp)
 
 }
 
-size_t scull_read(struct file *filp, char __user *buff, size_t count, loff_t *f_pos)
+int scull_release(void){
+        return 0;
+}
+
+ssize_t scull_read(struct file *filp, char __user *buff, size_t count, loff_t *f_pos)
 {
         struct scull_dev *dev = filp->private_data;
-        unsigned long rest
+        unsigned long rest;
 
         int retval = 0;
 
@@ -145,7 +126,7 @@ size_t scull_read(struct file *filp, char __user *buff, size_t count, loff_t *f_
         }
 
         unsigned long qset_num = (unsigned long) (*f_pos) / scull_size;
-        int remaining_qset = (unsigned long) (*f_pos) % scull_size
+        int remaining_qset = (unsigned long) (*f_pos) % scull_size;
         int quantum_num = remaining_qset / dev->quantum;
         int remaining_quantum = remaining_qset % dev->quantum;
 
@@ -158,20 +139,20 @@ size_t scull_read(struct file *filp, char __user *buff, size_t count, loff_t *f_
                 count = dev->quantum - remaining_quantum;
 
         if (copy_to_user(buff, read_pointer->data[quantum_num] + remaining_quantum, count)){
-                retval = -EFAULT
+                retval = -EFAULT;
                 goto out;
         }
-        *fpos += count;
+        *f_pos += count;
         out:    
                 if (retval)
-                        printk(KERN ALERT "Couldnt read complete scull data")
+                        printk(KERN_ALERT "Couldnt read complete scull data");
                 return retval;
 
 
 }
 
 
-size_t scull_write(struct file *filp, char __user *buff, size_t count, loff_t *f_pos)
+ssize_t scull_write(struct file *filp, char __user *buff, size_t count, loff_t *f_pos)
 {
         struct scull_dev *dev = filp->private_data;
         unsigned long rest
@@ -187,7 +168,7 @@ size_t scull_write(struct file *filp, char __user *buff, size_t count, loff_t *f
         }
 
         unsigned long qset_num = (unsigned long) (*f_pos) / scull_size;
-        int remaining_qset = (unsigned long) (*f_pos) % scull_size
+        int remaining_qset = (unsigned long) (*f_pos) % scull_size;
         int quantum_num = remaining_qset / dev->quantum;
         int remaining_quantum = remaining_qset % dev->quantum;
 
@@ -199,7 +180,7 @@ size_t scull_write(struct file *filp, char __user *buff, size_t count, loff_t *f
                 write_pointer->data = kmalloc(dev->qset *  sizeof(char *), GFP_KERNEL);
                 if (write_pointer->data == NULL){
                         retval = -EFAULT;
-                        goto out
+                        goto out;
                 }
                 memset(write_pointer->data, 0, remaining_quantum * sizeof(char *));
         }
@@ -218,7 +199,7 @@ size_t scull_write(struct file *filp, char __user *buff, size_t count, loff_t *f
         *f_pos += count;
 
         if (*f_pos > dev->size)
-                dev->size = *f_pos
+                dev->size = *f_pos;
 
         out:    
                 if (retval)
@@ -228,7 +209,7 @@ size_t scull_write(struct file *filp, char __user *buff, size_t count, loff_t *f
 
 }
 
-int scull_follow(struct scull_dev *dev, int qset_num)
+struct scull_qset *scull_follow(struct scull_dev *dev, int qset_num)
 {
         int i;
         struct scull_qset *qset_pointer = dev->data;
