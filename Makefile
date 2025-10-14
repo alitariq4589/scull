@@ -1,5 +1,3 @@
-#!/bin/bash
-
 ifneq($(KERNELRELEASE),)
 	obj-m := scull.o
 else
