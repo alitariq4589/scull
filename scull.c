@@ -180,14 +180,14 @@ ssize_t scull_write(struct file *filp, const char __user *buff, size_t count, lo
                         retval = -EFAULT;
                         goto out;
                 }
-                memset(write_pointer->data, 0, remaining_quantum * sizeof(char *));
+                memset(write_pointer->data, 0, dev->qset * sizeof(char *));
         }
         if (write_pointer->data[quantum_num] == NULL){
                 write_pointer->data[quantum_num] = kmalloc(dev->quantum, GFP_KERNEL);
         }
         
-        if (count > dev->quantum - remaining_quantum)
-                count = dev->quantum - remaining_quantum;
+        // if (count > dev->quantum - remaining_quantum)
+        //         count = dev->quantum - remaining_quantum;
 
         if (copy_from_user(write_pointer->data[quantum_num] + remaining_quantum, buff,  count)){
                 retval = -EFAULT;
@@ -195,6 +195,8 @@ ssize_t scull_write(struct file *filp, const char __user *buff, size_t count, lo
         }
 
         *f_pos += count;
+        
+        retval = count;
 
         if (*f_pos > dev->size)
                 dev->size = *f_pos;
