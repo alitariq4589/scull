@@ -155,7 +155,7 @@ ssize_t scull_read(struct file *filp, char __user *buff, size_t count, loff_t *f
 ssize_t scull_write(struct file *filp, char __user *buff, size_t count, loff_t *f_pos)
 {
         struct scull_dev *dev = filp->private_data;
-        unsigned long rest
+        unsigned long rest;
 
         int retval = 0;
 
@@ -192,7 +192,7 @@ ssize_t scull_write(struct file *filp, char __user *buff, size_t count, loff_t *
                 count = dev->quantum - remaining_quantum;
 
         if (copy_from_user(write_pointer->data[quantum_num] + remaining_quantum, buff,  count)){
-                retval = -EFAULT
+                retval = -EFAULT;
                 goto out;
         }
 
@@ -203,7 +203,7 @@ ssize_t scull_write(struct file *filp, char __user *buff, size_t count, loff_t *
 
         out:    
                 if (retval)
-                        printk(KERN ALERT "Couldnt read complete scull data")
+                        printk(KERN_ALERT "Couldnt read complete scull data");
                 return retval;
 
 
@@ -240,7 +240,7 @@ int create_qset(struct scull_qset **qset){
         return 0;
 }
 
-static void scull_cleanup_module(void)
+static void __exit scull_cleanup_module(void)
 {
     if (scull_device.cdev.ops) {
         cdev_del(&scull_device.cdev);
