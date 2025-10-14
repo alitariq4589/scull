@@ -2,18 +2,28 @@
 
 MODULE="scull"
 DEVICE="scull"
+MODE="664"
+GROUP="root"
 
-mode="664"
+# Insert module
+/sbin/insmod ./${MODULE}.ko "$@" || exit 1
 
-/sbin/insmod ./${MODULE}.ko $* || exit 1
+# Remove stale device node
+rm -f /dev/${DEVICE}0
 
-rm -rf "/dev/${DEVICE}0"
+# Get major number from /proc/devices
+major=$(awk -v module="$MODULE" '$2 == module {print $1}' /proc/devices)
 
-major=$(awk "\\$2==\"$module\" {print \\$1}" /proc/devices)
+if [ -z "$major" ]; then
+    echo "Error: could not find major number for $MODULE in /proc/devices"
+    exit 1
+fi
 
-mknod /dev/${DEVICE} c $major 0
+# Create device node
+mknod /dev/${DEVICE}0 c $major 0
 
-group="root"
+# Set group and permissions
+chgrp $GROUP /dev/${DEVICE}0
+chmod $MODE /dev/${DEVICE}0
 
-chgrp $group /dev/${DEVICE}0
-chmod $mode /dev/${DEVICE}0
+echo "Created /dev/${DEVICE}0 with major=$major"
