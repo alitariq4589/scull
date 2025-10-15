@@ -75,7 +75,8 @@ int scull_trim(struct scull_dev *dev)
                 next = current_qset->next;
                 if (current_qset->data){
                         for (i = 0; i < qset; i++){
-                                kfree(current_qset->data[i]);
+                                if (current_qset->data[i])
+                                        kfree(current_qset->data[i]);
                         }
                         kfree(current_qset->data);
                         current_qset->data = NULL;
