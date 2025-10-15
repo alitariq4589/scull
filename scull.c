@@ -273,6 +273,10 @@ struct scull_qset *scull_follow(struct scull_dev *dev, int qset_num)
         int i;
         struct scull_qset *qset_pointer = dev->data;
 
+#if SCULL_DEBUG
+                printk(KERN_ALERT "scull: Value of qset_num inside scull_follow: %d\n", qset_num);
+#endif
+
         if (dev->data == NULL){
 #if SCULL_DEBUG
                 printk(KERN_ALERT "scull: First qset not found. Allocating first qset inside scull_follow()\n");
