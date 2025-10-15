@@ -195,9 +195,9 @@ ssize_t scull_write(struct file *filp, const char __user *buff, size_t count, lo
 
         struct scull_qset *write_pointer;
 
-        if (*f_pos+count > dev->size){
-                count = dev->size-*f_pos;
-        }
+        // if (*f_pos+count > dev->size){
+        //         count = dev->size-*f_pos;
+        // }
 
         unsigned long qset_num = (unsigned long) (*f_pos) / scull_size;
         int remaining_qset = (unsigned long) (*f_pos) % scull_size;
