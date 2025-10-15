@@ -297,7 +297,7 @@ struct scull_qset *scull_follow(struct scull_dev *dev, int qset_num)
                          }
                 }
 #if SCULL_DEBUG
-                printk(KERN_ALERT "scull: qset available, Moving to next qset. The qset is at location: %lu\n", qset_pointer);
+                printk(KERN_ALERT "scull: qset available, Moving to next qset. The qset is at location: %p\n", qset_pointer);
 #endif
                 qset_pointer = qset_pointer->next;
         }
