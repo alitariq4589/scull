@@ -313,16 +313,16 @@ struct scull_qset *scull_follow(struct scull_dev *dev, int qset_num)
         return qset_pointer;
 }
 
-int create_qset(struct scull_qset **qset){
+int create_qset(struct scull_qset *qset){
 #if SCULL_DEBUG
         printk(KERN_ALERT "scull: Allocating memory for new qset with create_qset()\n");
 #endif
-        *qset = kmalloc(sizeof(struct scull_qset), GFP_KERNEL);
-        if (!*qset){
+        qset = kmalloc(sizeof(struct scull_qset), GFP_KERNEL);
+        if (!qset){
                 printk(KERN_ALERT "scull: New qset allocation failed!");
                 return -ENOMEM;
         }
-        memset (*qset, 0, sizeof(struct scull_qset));
+        memset (qset, 0, sizeof(struct scull_qset));
         return 0;
 }
 
