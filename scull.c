@@ -277,9 +277,13 @@ struct scull_qset *scull_follow(struct scull_dev *dev, int qset_num)
 #if SCULL_DEBUG
                 printk(KERN_ALERT "scull: First qset not found. Allocating first qset inside scull_follow()\n");
 #endif
-                if (create_qset(&dev->data))
+                int res = create_qset(&dev->data);
 #if SCULL_DEBUG
-                printk(KERN_ALERT "scull: Error: Data node creation failed inside scull_follow()\n");
+                printk(KERN_ALERT "scull: Return code for data node creation: %d\n", res);
+#endif
+                if (res < 0){
+#if SCULL_DEBUG
+                printk(KERN_ALERT "scull: Error: Data node creation failed inside scull_follow() with error: %d\n", res);
 #endif
                         return NULL;
         }
