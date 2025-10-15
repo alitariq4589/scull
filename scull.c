@@ -286,6 +286,7 @@ struct scull_qset *scull_follow(struct scull_dev *dev, int qset_num)
                 printk(KERN_ALERT "scull: Error: Data node creation failed inside scull_follow() with error: %d\n", res);
 #endif
                         return NULL;
+                }
         }
 
         for (i = 0; i < qset_num; i++){
