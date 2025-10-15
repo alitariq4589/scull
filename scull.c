@@ -237,9 +237,14 @@ ssize_t scull_write(struct file *filp, const char __user *buff, size_t count, lo
                         goto out;
                 }
         }
-        
-        // if (count > dev->quantum - remaining_quantum)
-        //         count = dev->quantum - remaining_quantum;
+#if SCULL_DEBUG
+        printk(KERN_INFO "scull: Byte count requested for write: %zu\n", count);
+#endif       
+        if (count > dev->quantum - remaining_quantum)
+                count = dev->quantum - remaining_quantum;
+#if SCULL_DEBUG
+        printk(KERN_INFO "scull: Byte count for current quantum write: %zu\n", count);
+#endif
 
         if (copy_from_user(write_pointer->data[quantum_num] + remaining_quantum, buff,  count)){
                 retval = -EFAULT;
