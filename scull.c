@@ -52,7 +52,7 @@ static int setup_scull(struct scull_dev *dev)
                 return -EFAULT;
         }
 #if SCULL_DEBUG
-        printk(KERN_INFO "scull: Device Number Major: %d, Minor: %d\n", MAJOR(dev_num), MINOR(dev_num));
+        printk(KERN_ALERT "scull: Device Number Major: %d, Minor: %d\n", MAJOR(dev_num), MINOR(dev_num));
 #endif
         dev->cdev.owner = THIS_MODULE;
         cdev_init(&dev->cdev, &fops);
@@ -63,7 +63,7 @@ static int setup_scull(struct scull_dev *dev)
         }
         scull_devnum = dev_num;
 #if SCULL_DEBUG
-        printk(KERN_INFO "scull: Device added to the kernel successfully\n");
+        printk(KERN_ALERT "scull: Device added to the kernel successfully\n");
 #endif
         return 0;
 }
@@ -72,7 +72,7 @@ int scull_trim(struct scull_dev *dev)
 {
 
 #if SCULL_DEBUG
-        printk(KERN_INFO "scull: Trimming device\n");
+        printk(KERN_ALERT "scull: Trimming device\n");
 #endif
         struct scull_qset *current_qset, *next;
         
@@ -98,7 +98,7 @@ int scull_trim(struct scull_dev *dev)
         dev->data = NULL;
 
 #if SCULL_DEBUG
-        printk(KERN_INFO "scull: Device trimmed successfully\n");
+        printk(KERN_ALERT "scull: Device trimmed successfully\n");
 #endif
         return 0;
                 
@@ -107,7 +107,7 @@ int scull_trim(struct scull_dev *dev)
 int scull_open(struct inode *inode, struct file *filp)
 {
 #if SCULL_DEBUG
-        printk(KERN_INFO "scull: Opening device\n");
+        printk(KERN_ALERT "scull: Opening device\n");
 #endif
         struct scull_dev *dev;
 
@@ -117,7 +117,7 @@ int scull_open(struct inode *inode, struct file *filp)
 
         if ((filp->f_flags & O_ACCMODE) == O_WRONLY){
 #if SCULL_DEBUG
-                printk(KERN_INFO "scull: Opening in write mode, trimming the device\n");
+                printk(KERN_ALERT "scull: Opening in write mode, trimming the device\n");
 #endif
                 scull_trim(dev);
         }
@@ -129,7 +129,7 @@ int scull_open(struct inode *inode, struct file *filp)
 int scull_release(struct inode *inode, struct file *filp)
 {
 #if SCULL_DEBUG
-        printk(KERN_INFO "scull: Releasing device\n");
+        printk(KERN_ALERT "scull: Releasing device\n");
 #endif
         return 0;
 }
@@ -138,7 +138,7 @@ ssize_t scull_read(struct file *filp, char __user *buff, size_t count, loff_t *f
 {
 
 #if SCULL_DEBUG
-        printk(KERN_INFO "scull: Reading from device\n");
+        printk(KERN_ALERT "scull: Reading from device\n");
 #endif
         struct scull_dev *dev = filp->private_data;
 
@@ -183,11 +183,11 @@ ssize_t scull_write(struct file *filp, const char __user *buff, size_t count, lo
 {
 
 #if SCULL_DEBUG
-        printk(KERN_INFO "scull: Writing to device\n");
+        printk(KERN_ALERT "scull: Writing to device\n");
 #endif
 
 #if SCULL_DEBUG
-        printk(KERN_INFO "scull: Byte count requested for write: %zu\n", count);
+        printk(KERN_ALERT "scull: Byte count requested for write: %zu\n", count);
 #endif    
         struct scull_dev *dev = filp->private_data;
         int retval = 0;
@@ -222,14 +222,14 @@ ssize_t scull_write(struct file *filp, const char __user *buff, size_t count, lo
                         goto out;
                 }
 #if SCULL_DEBUG
-                printk(KERN_INFO "scull: Allocated data node successfully. Zeroing memory\n");
+                printk(KERN_ALERT "scull: Allocated data node successfully. Zeroing memory\n");
 #endif
                 memset(write_pointer->data, 0, dev->qset * sizeof(char *));
         }
         if (write_pointer->data[quantum_num] == NULL){
                 write_pointer->data[quantum_num] = kmalloc(dev->quantum, GFP_KERNEL);
 #if SCULL_DEBUG
-                printk(KERN_INFO "scull: Allocated quantum node successfully. Zeroing memory\n");
+                printk(KERN_ALERT "scull: Allocated quantum node successfully. Zeroing memory\n");
 #endif
                 if (write_pointer->data[quantum_num] == NULL){
 #if SCULL_DEBUG
@@ -243,7 +243,7 @@ ssize_t scull_write(struct file *filp, const char __user *buff, size_t count, lo
         if (count > dev->quantum - remaining_quantum)
                 count = dev->quantum - remaining_quantum;
 #if SCULL_DEBUG
-        printk(KERN_INFO "scull: Byte count for current quantum write: %zu\n", count);
+        printk(KERN_ALERT "scull: Byte count for current quantum write: %zu\n", count);
 #endif
 
         if (copy_from_user(write_pointer->data[quantum_num] + remaining_quantum, buff,  count)){
@@ -253,7 +253,7 @@ ssize_t scull_write(struct file *filp, const char __user *buff, size_t count, lo
 
         *f_pos += count;
 #if SCULL_DEBUG
-        printk(KERN_INFO "scull: Written %zu bytes to device\n", count);
+        printk(KERN_ALERT "scull: Written %zu bytes to device\n", count);
 #endif
         retval = count;
 
@@ -275,11 +275,11 @@ struct scull_qset *scull_follow(struct scull_dev *dev, int qset_num)
 
         if (dev->data == NULL){
 #if SCULL_DEBUG
-                printk(KERN_INFO "scull: First qset not found. Allocating first qset inside scull_follow()\n");
+                printk(KERN_ALERT "scull: First qset not found. Allocating first qset inside scull_follow()\n");
 #endif
                 if (create_qset(&dev->data))
 #if SCULL_DEBUG
-                printk(KERN_INFO "scull: Error: Data node creation failed inside scull_follow()\n");
+                printk(KERN_ALERT "scull: Error: Data node creation failed inside scull_follow()\n");
 #endif
                         return NULL;
         }
@@ -287,7 +287,7 @@ struct scull_qset *scull_follow(struct scull_dev *dev, int qset_num)
         for (i = 0; i < qset_num; i++){
                 if (qset_pointer->next == NULL){
 #if SCULL_DEBUG
-                printk(KERN_INFO "scull: qset->next not found, creating it inside scull_follow()\n");
+                printk(KERN_ALERT "scull: qset->next not found, creating it inside scull_follow()\n");
 #endif
                          if (create_qset(&qset_pointer->next)){
 #if SCULL_DEBUG
@@ -306,7 +306,7 @@ struct scull_qset *scull_follow(struct scull_dev *dev, int qset_num)
 
 int create_qset(struct scull_qset **qset){
 #if SCULL_DEBUG
-        printk(KERN_INFO "scull: Allocating memory for new qset with create_qset()\n");
+        printk(KERN_ALERT "scull: Allocating memory for new qset with create_qset()\n");
 #endif
         *qset = kmalloc(sizeof(struct scull_qset), GFP_KERNEL);
         if (!*qset){
@@ -331,7 +331,7 @@ void scull_cleanup(void)
     
     scull_trim(&scull_device); 
     
-    printk(KERN_INFO "scull: Device unloaded.\n");
+    printk(KERN_ALERT "scull: Device unloaded.\n");
 }
 
 static void __exit scull_cleanup_module(void)
