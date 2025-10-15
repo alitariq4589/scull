@@ -281,7 +281,7 @@ struct scull_qset *scull_follow(struct scull_dev *dev, int qset_num)
 #if SCULL_DEBUG
                 printk(KERN_ALERT "scull: First qset not found. Allocating first qset inside scull_follow()\n");
 #endif
-                int res = create_qset(&dev->data);
+                int res = create_qset(qset_pointer);
 #if SCULL_DEBUG
                 printk(KERN_ALERT "scull: Return code for data node creation: %d\n", res);
 #endif
@@ -292,7 +292,7 @@ struct scull_qset *scull_follow(struct scull_dev *dev, int qset_num)
                         return NULL;
                 }
         }
-
+        dev->data = qset_pointer;
         for (i = 0; i < qset_num; i++){
                 if (qset_pointer->next == NULL){
 #if SCULL_DEBUG
