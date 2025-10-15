@@ -274,6 +274,12 @@ struct scull_qset *scull_follow(struct scull_dev *dev, int qset_num)
         struct scull_qset *qset_pointer = dev->data;
 
 #if SCULL_DEBUG
+                printk(KERN_ALERT "scull: Value of qset_pointer: %p\n", qset_pointer);
+                printk(KERN_ALERT "scull: Value of dev->data: %p\n", dev->data);
+#endif
+
+
+#if SCULL_DEBUG
                 printk(KERN_ALERT "scull: Value of qset_num inside scull_follow: %d\n", qset_num);
 #endif
 
@@ -310,6 +316,10 @@ struct scull_qset *scull_follow(struct scull_dev *dev, int qset_num)
 #endif
                 qset_pointer = qset_pointer->next;
         }
+#if SCULL_DEBUG
+                printk(KERN_ALERT "scull: Value of qset_pointer before return: %p\n", qset_pointer);
+                printk(KERN_ALERT "scull: Value of dev->data before return: %p\n", dev->data);
+#endif
         return qset_pointer;
 }
 
