@@ -24,7 +24,7 @@ int scull_open(struct inode *inode, struct file *filp);
 ssize_t scull_read(struct file *filp, char __user *buff, size_t count, loff_t *f_pos);
 ssize_t scull_write(struct file *filp, const char __user *buff, size_t count, loff_t *f_pos);
 struct scull_qset *scull_follow(struct scull_dev *dev, int qset_num);
-int create_qset(struct scull_qset *qset);
+int create_qset(struct scull_qset **qset);
 static void scull_cleanup_module(void);
 int scull_release(struct inode *inode, struct file *filp);
 void scull_cleanup(void);
