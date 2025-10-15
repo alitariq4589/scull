@@ -185,10 +185,12 @@ ssize_t scull_write(struct file *filp, const char __user *buff, size_t count, lo
 #if SCULL_DEBUG
         printk(KERN_INFO "scull: Writing to device\n");
 #endif
+
+#if SCULL_DEBUG
+        printk(KERN_INFO "scull: Byte count requested for write: %zu\n", count);
+#endif    
         struct scull_dev *dev = filp->private_data;
-
         int retval = 0;
-
         unsigned long scull_size = dev->qset * dev->quantum;
 
         struct scull_qset *write_pointer;
@@ -237,9 +239,7 @@ ssize_t scull_write(struct file *filp, const char __user *buff, size_t count, lo
                         goto out;
                 }
         }
-#if SCULL_DEBUG
-        printk(KERN_INFO "scull: Byte count requested for write: %zu\n", count);
-#endif       
+   
         if (count > dev->quantum - remaining_quantum)
                 count = dev->quantum - remaining_quantum;
 #if SCULL_DEBUG
@@ -275,23 +275,29 @@ struct scull_qset *scull_follow(struct scull_dev *dev, int qset_num)
 
         if (dev->data == NULL){
 #if SCULL_DEBUG
-                printk(KERN_INFO "scull: First qset not found. Allocating first qset\n");
+                printk(KERN_INFO "scull: First qset not found. Allocating first qset inside scull_follow()\n");
 #endif
                 if (create_qset(&dev->data))
+#if SCULL_DEBUG
+                printk(KERN_INFO "scull: Error: Data node creation failed inside scull_follow()\n");
+#endif
                         return NULL;
         }
 
         for (i = 0; i < qset_num; i++){
                 if (qset_pointer->next == NULL){
+#if SCULL_DEBUG
+                printk(KERN_INFO "scull: qset->next not found, creating it inside scull_follow()\n");
+#endif
                          if (create_qset(&qset_pointer->next)){
 #if SCULL_DEBUG
-                                printk(KERN_ALERT "scull: Failed to allocate memory for qset in scull_follow\n");
+                                printk(KERN_ALERT "scull: Failed to allocate memory for qset->next in scull_follow\n");
 #endif
                             return NULL; // Allocation failed
                          }
                 }
 #if SCULL_DEBUG
-                printk(KERN_INFO "scull: qset available, Moving to next qset\n");
+                printk(KERN_ALERT "scull: qset available, Moving to next qset. The qset is at location: %lu\n", qset);
 #endif
                 qset_pointer = qset_pointer->next;
         }
