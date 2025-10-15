@@ -241,8 +241,8 @@ ssize_t scull_write(struct file *filp, const char __user *buff, size_t count, lo
         }
 
 #if SCULL_DEBUG
-        printk(KERN_ALERT "scull: Value of dev->quantum: %zu\n", dev->quantum);
-        printk(KERN_ALERT "scull: Value of remaining_quantum: %zu\n", remaining_quantum);
+        printk(KERN_ALERT "scull: Value of dev->quantum: %lu\n", dev->quantum);
+        printk(KERN_ALERT "scull: Value of remaining_quantum: %d\n", remaining_quantum);
 #endif        
 
         if (count > dev->quantum - remaining_quantum)
