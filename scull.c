@@ -142,6 +142,13 @@ ssize_t scull_read(struct file *filp, char __user *buff, size_t count, loff_t *f
 #endif
         struct scull_dev *dev = filp->private_data;
 
+#if SCULL_DEBUG
+        printk(KERN_ALERT "scull: Size of scull before read operation: %lu\n", dev->size);
+#endif
+
+#if SCULL_DEBUG
+        printk(KERN_ALERT "scull: Count of bytes requested for read: %zu\n", count);
+#endif
         int retval = 0;
 
         unsigned long scull_size = dev->qset * dev->quantum;
@@ -152,6 +159,9 @@ ssize_t scull_read(struct file *filp, char __user *buff, size_t count, loff_t *f
                 count = dev->size-*f_pos;
         }
 
+#if SCULL_DEBUG
+        printk(KERN_ALERT "scull: Count of bytes calculated for read: %zu\n", count);
+#endif
         unsigned long qset_num = (unsigned long) (*f_pos) / scull_size;
         int remaining_qset = (unsigned long) (*f_pos) % scull_size;
         int quantum_num = remaining_qset / dev->quantum;
@@ -159,17 +169,24 @@ ssize_t scull_read(struct file *filp, char __user *buff, size_t count, loff_t *f
 
         read_pointer = scull_follow(dev, qset_num);
 
-        if (read_pointer == NULL || read_pointer->data == NULL || read_pointer->data[quantum_num] == NULL)
+        if (read_pointer == NULL || read_pointer->data == NULL || read_pointer->data[quantum_num] == NULL){
+#if SCULL_DEBUG
+        printk(KERN_ALERT "scull: Something was NULL!");
+#endif                
                 goto out;
+        }
         
         if (count > dev->quantum - remaining_quantum)
                 count = dev->quantum - remaining_quantum;
-
+#if SCULL_DEBUG
+        printk(KERN_ALERT "scull: Count of bytes calculated for read part 2: %zu\n", count);
+#endif
         if (copy_to_user(buff, read_pointer->data[quantum_num] + remaining_quantum, count)){
                 retval = -EFAULT;
                 goto out;
         }
         *f_pos += count;
+        retval = count;
         out:    
                 if (retval)
                         printk(KERN_ALERT "Couldnt read complete scull data");
@@ -265,6 +282,9 @@ ssize_t scull_write(struct file *filp, const char __user *buff, size_t count, lo
         if (*f_pos > dev->size)
                 dev->size = *f_pos;
 
+#if SCULL_DEBUG
+        printk(KERN_ALERT "scull: Size of scull after write operation: %lu\n", dev->size);
+#endif
         out:    
                 if (retval)
                         printk(KERN_ALERT "Couldnt read complete scull data");
